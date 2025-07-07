@@ -15,7 +15,7 @@ tarifs = {
 }
 
 
-# Inicia el flujo del viaje
+# Inicia el flujo del viajes
 def StartRute(SRval, SRtrip, SRtarifs, isTrueq):
     while SRval:
         # Mensaje de bienvenida o nuevo viaje
