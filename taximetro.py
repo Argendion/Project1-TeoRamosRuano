@@ -14,35 +14,31 @@ tripCost = float(0)
 valueWait = float(2)
 valueMove = float(5)
 
-firstTime = True
-
-def StartRute(SRval):
-    # Hay que usar global [???] si editas los valores
-    global espera,avanzado,tripCost,firstTime
-    espera=0
-    avanzado=0
+def StartRute(SRval, SRwai, SRmov, SRcos, SRvalWai, SRvalMov, isTrueq):
+    SRwai=0
+    SRmov=0
 
     while SRval:
-        if firstTime:
+        if isTrueq:
             print("Bienvenido a TaxisF5 que quiere iniciar un viaje?")
-            firstTime = False
+            isTrueq = False
         else:
             print("Quiere iniciar un nuevo viaje?")
         sino = input("s/n: ")
         if sino == "s" or sino == "S": 
-            SRval = CheckAction(True)
+            SRval = CheckAction(SRval, SRwai, SRmov, SRcos, SRvalWai, SRvalMov, isTrueq)
         else:
             SRval = False
     print("Gracias por viajar con TaxisF5 hasta la proxima")
         
 
-def CheckAction(CAval) -> bool:
+def CheckAction(CAval, CAwai, CAmov, CAcos, CAvalWai, CAvalMov, CAisTrueq) -> bool:
     while CAval:
         # Cambiar tarifa
-        print(f"La tarifa actual es {valueWait}cen/s en espera y {valueMove}cent/s en movimiento")
+        print(f"La tarifa actual es {CAvalWai}cen/s en espera y {CAvalMov}cent/s en movimiento")
         nVal = input("Si quieres cambiarlo ingrese 's': ")
         if nVal == "S" or nVal == "s":
-            CheckPrices()
+            CheckPrices(CAval, CAwai, CAmov, CAcos, CAvalWai, CAvalMov, isTrueq)
         CAval = CountCM()
     return CAval
     
@@ -91,7 +87,7 @@ def calcular_costo(modo, t, tar_wai, tar_mov):
     else:
         raise ValueError("Modo inválido")
 
-def CheckPrices():
+def CheckPrices(CPval, CPwai, CPmov, CPcos, CPvalWai, CPvalMov, CPisTrueq):
     global espera,avanzado,tripCost,valueMove,valueWait
     valueWait = float(input("Inserta el valor actual de ESPERAR en cent/seg: "))
     valueMove = float(input("Inserta el valor actual de MOOVERSE en cent/seg: "))
@@ -124,4 +120,4 @@ class TestCounterClass(unittest.TestCase):
 if __name__ == '__main__':
     unittest.main()
 #Begin
-StartRute()
+StartRute(True, espera, avanzado, tripCost, valueWait, valueMove, True)
