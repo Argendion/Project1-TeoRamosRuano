@@ -1,123 +1,158 @@
-#Importar librerias
-
-#Testing framework
+# Importar librerías necesarias
 import unittest
 import random
-#Import where we whannt to test
-from taximetro import calcular_costo
 
-#Variables
-espera = float(0)
-avanzado = float(0)
-tripCost = float(0)
+# Variables que contienen el estado del viaje y tarifas
+trip = {
+    "espera": float(0),
+    "avanzado": float(0),
+    "tripCost": float(0)
+}
 
-valueWait = float(2)
-valueMove = float(5)
+tarifs = {
+    "valueWait": float(2),  # 2 cent/segundo por esperar
+    "valueMove": float(5)   # 5 cent/segundo por moverse
+}
 
-def StartRute(SRval, SRwai, SRmov, SRcos, SRvalWai, SRvalMov, isTrueq):
-    SRwai=0
-    SRmov=0
 
+# Inicia el flujo del viaje
+def StartRute(SRval, SRtrip, SRtarifs, isTrueq):
     while SRval:
+        # Mensaje de bienvenida o nuevo viaje
         if isTrueq:
-            print("Bienvenido a TaxisF5 que quiere iniciar un viaje?")
+            print("Bienvenido a TaxisF5, ¿quiere iniciar un viaje?")
             isTrueq = False
         else:
-            print("Quiere iniciar un nuevo viaje?")
+            print("¿Quiere iniciar un nuevo viaje?")
+
         sino = input("s/n: ")
-        if sino == "s" or sino == "S": 
-            SRval = CheckAction(SRval, SRwai, SRmov, SRcos, SRvalWai, SRvalMov, isTrueq)
+
+        if sino.lower() == "s":
+            # Comienza el ciclo del viaje
+            SRval = CheckAction(SRval, SRtrip, SRtarifs)
         else:
             SRval = False
-    print("Gracias por viajar con TaxisF5 hasta la proxima")
-        
 
-def CheckAction(CAval, CAwai, CAmov, CAcos, CAvalWai, CAvalMov, CAisTrueq) -> bool:
+    print("Gracias por viajar con TaxisF5. Hasta la próxima.")
+
+
+# Gestiona si se quiere cambiar tarifas y llama a la función que controla el viaje
+def CheckAction(CAval, CAtrip, CAtarifs) -> bool:
     while CAval:
-        # Cambiar tarifa
-        print(f"La tarifa actual es {CAvalWai}cen/s en espera y {CAvalMov}cent/s en movimiento")
-        nVal = input("Si quieres cambiarlo ingrese 's': ")
-        if nVal == "S" or nVal == "s":
-            CheckPrices(CAval, CAwai, CAmov, CAcos, CAvalWai, CAvalMov, isTrueq)
-        CAval = CountCM()
+        print(f"Tarifa actual: {CAtarifs['valueWait']} cent/seg en espera, "
+              f"{CAtarifs['valueMove']} cent/seg en movimiento")
+
+        nVal = input("¿Desea cambiar las tarifas? (s/n): ")
+        if nVal.lower() == "s":
+            CheckPrices(CAtarifs)
+
+        # Ejecuta el viaje en sí
+        CAval = CountCM(CAtrip, CAtarifs)
+
     return CAval
-    
 
 
-def CountCM() -> bool:
-    global valueMove,valueWait,tripCost,avanzado,espera
-    print("Avanzamos? = 0")
-    print("Esperamos? = 1")
-    print("Hemos llegado a nuestro destino? = q")
+# Controla el flujo del viaje: avanzar, esperar o finalizar
+def CountCM(trip, tarifs) -> bool:
+    print("\nAvanzamos = 0\nEsperamos = 1\nHemos llegado = q")
     m = input("Responde: ")
+
     if m == "0":
-        n = float(input("cuanto tiempo avanzamos?: "))
-        print(f"avanzamos {n}s con una tarifa de: {valueMove} tramo cuesta {n*valueMove}")
-        tripCost += calcular_costo("mov", n, valueWait, valueMove)
-        print(f"Coste total del viaje de momento = {tripCost/100}€")
-        avanzado += n
+        # Movimiento del taxi
+        try:
+            n = float(input("¿Cuánto tiempo avanzamos (segundos)?: "))
+            coste = CalcularCosto("mov", n, tarifs["valueWait"], tarifs["valueMove"])
+            trip["avanzado"] += n
+            trip["tripCost"] += coste
+            print(f"Coste total actual: {trip['tripCost'] / 100:.2f}€")
+        except ValueError as e:
+            print(f"Error: {e}")
         return True
+
     elif m == "1":
-        n = float(input("cuanto tiempo esperamos: "))
-        print(f"esperamos {n}s con una tarifa de: {valueWait} tramo cuesta {n*valueWait}")
-        tripCost += calcular_costo("wai", n, valueWait, valueMove)
-        print(f"Coste total del viaje de momento = {tripCost/100}€")
-        espera += n
+        # Espera del taxi
+        try:
+            n = float(input("¿Cuánto tiempo esperamos (segundos)?: "))
+            coste = CalcularCosto("wai", n, tarifs["valueWait"], tarifs["valueMove"])
+            trip["espera"] += n
+            trip["tripCost"] += coste
+            print(f"Coste total actual: {trip['tripCost'] / 100:.2f}€")
+        except ValueError as e:
+            print(f"Error: {e}")
         return True
+
     elif m == "q":
-        print(f"El viaje ha consistido de {avanzado}s de recorrido y {espera}s de espera")
-        tot = float(espera*valueWait/100 + avanzado*valueMove/100)
-        print(f"El viaje le sale a {tot}€")
+        # Finalización del viaje
+        print("\n--- Fin del viaje ---")
+        print(f"Tiempo en movimiento: {trip['avanzado']}s")
+        print(f"Tiempo en espera: {trip['espera']}s")
+        print(f"Costo total: {trip['tripCost'] / 100:.2f}€")
         return False
-    
-# Separating the calculations from the rest of the code is necesay for testing to work
-def calcular_costo(modo, t, tar_wai, tar_mov):
+
+    else:
+        print("Opción no válida.")
+        return True
+
+
+# Calcula el coste según el tipo de acción y las tarifas
+def CalcularCosto(modo, t, tar_wai, tar_mov):
     """
-    Calcula el coste basado en el tipo de acción y tiempo.
-    
-    modo: 'espera' o 'movimiento'
-    tiempo: segundos
-    tarifa_espera: cent/seg
-    tarifa_movimiento: cent/seg
+    Calcula el coste en centavos según el modo ('wai' o 'mov'),
+    el tiempo en segundos y las tarifas proporcionadas.
     """
+    if t < 0:
+        raise ValueError("El tiempo no puede ser negativo")
+
     if modo == 'wai':
+        print(f"Esperamos {t}s con tarifa {tar_wai} cent/s. Tramo: {t * tar_wai} cent")
         return t * tar_wai
+
     elif modo == 'mov':
+        print(f"Avanzamos {t}s con tarifa {tar_mov} cent/s. Tramo: {t * tar_mov} cent")
         return t * tar_mov
+
     else:
         raise ValueError("Modo inválido")
 
-def CheckPrices(CPval, CPwai, CPmov, CPcos, CPvalWai, CPvalMov, CPisTrueq):
-    global espera,avanzado,tripCost,valueMove,valueWait
-    valueWait = float(input("Inserta el valor actual de ESPERAR en cent/seg: "))
-    valueMove = float(input("Inserta el valor actual de MOOVERSE en cent/seg: "))
 
-# Unitest {class -> }
-# unittest.TestCase -> gives class acces to specific tessting methods that i need [???]
+# Permite cambiar los valores de las tarifas de espera y movimiento
+def CheckPrices(CPtarifs):
+    try:
+        CPtarifs["valueWait"] = float(input("Inserta nueva tarifa de ESPERA (cent/seg): "))
+        CPtarifs["valueMove"] = float(input("Inserta nueva tarifa de MOVIMIENTO (cent/seg): "))
+    except ValueError:
+        print("Tarifas no válidas. Intenta de nuevo.")
+
+
+# PRUEBAS UNITARIAS
 class TestCounterClass(unittest.TestCase):
     def test_random_movimiento(self):
-        # Use random numbers for more acurate testing
+        # Prueba 10 valores aleatorios para 'mov'
         for _ in range(10):  
             tiempo = random.randint(1, 100)             
             tarifa = random.randint(1, 10)              
             esperado = tiempo * tarifa
-            resultado = calcular_costo('mov', tiempo, 0, tarifa)
+            resultado = CalcularCosto('mov', tiempo, 0, tarifa)
             self.assertEqual(resultado, esperado)
-    
+
     def test_random_espera(self):
         for _ in range(10):
             tiempo = random.randint(1, 100)
             tarifa = random.randint(1, 10)
             esperado = tiempo * tarifa
-            resultado = calcular_costo('wai', tiempo, tarifa, 0)
+            resultado = CalcularCosto('wai', tiempo, tarifa, 0)
             self.assertEqual(resultado, esperado)
-    
-    def test_error_modo(self):
-        # Verificamos que se lanza un error si el modo es incorrecto
-        with self.assertRaises(ValueError):
-            calcular_costo('volar', 10, 2, 5)
 
+    def test_error_modo(self):
+        # Verifica que se lanza un error con modo inválido
+        with self.assertRaises(ValueError):
+            CalcularCosto('volar', 10, 2, 5)
+
+
+# Si ejecutamos el script directamente, preguntamos qué modo quiere el usuario
 if __name__ == '__main__':
-    unittest.main()
-#Begin
-StartRute(True, espera, avanzado, tripCost, valueWait, valueMove, True)
+    modo = input("¿Quieres ejecutar tests (t) o iniciar la app (a)?: ").lower()
+    if modo == "t":
+        unittest.main(exit=False)
+    elif modo == "a":
+        StartRute(True, trip, tarifs, True)
