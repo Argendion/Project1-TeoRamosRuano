@@ -28,6 +28,11 @@ def StartRute(SRval, SRtrip, SRtarifs, isTrueq):
         sino = input("s/n: ")
 
         if sino.lower() == "s":
+            SRtrip = {
+                "espera": float(0),
+                "avanzado": float(0),
+                "tripCost": float(0)
+            }
             # Comienza el ciclo del viaje
             SRval = CheckAction(SRval, SRtrip, SRtarifs)
         else:
@@ -49,11 +54,12 @@ def CheckAction(CAval, CAtrip, CAtarifs) -> bool:
         # Ejecuta el viaje en sí
         CAval = CountCM(CAtrip, CAtarifs)
 
-    return CAval
+    return True
 
 
 # Controla el flujo del viaje: avanzar, esperar o finalizar
 def CountCM(trip, tarifs) -> bool:
+    # \n es un salto de línea
     print("\nAvanzamos = 0\nEsperamos = 1\nHemos llegado = q")
     m = input("Responde: ")
 
@@ -83,10 +89,12 @@ def CountCM(trip, tarifs) -> bool:
 
     elif m == "q":
         # Finalización del viaje
-        print("\n--- Fin del viaje ---")
+        print("Viaje finalizado gracias por viajar con TaxisF5.")
         print(f"Tiempo en movimiento: {trip['avanzado']}s")
         print(f"Tiempo en espera: {trip['espera']}s")
         print(f"Costo total: {trip['tripCost'] / 100:.2f}€")
+
+        save_trip(trip)  # Guarda los datos del viaje
         return False
 
     else:
@@ -156,3 +164,46 @@ if __name__ == '__main__':
         unittest.main(exit=False)
     elif modo == "a":
         StartRute(True, trip, tarifs, True)
+
+# Guardar en archivo
+def save_trip(trip):
+    
+    # Guarda los datos del viaje en un archivo de texto, o crea uno nuevo si no existe
+    # Nombre, formato y contenido del archivo
+
+    '''
+``r''   Open text file for reading.  The stream is positioned at the
+         beginning of the file.
+
+``r+''  Open for reading and writing.  The stream is positioned at the
+         beginning of the file.
+
+``w''   Truncate file to zero length or create text file for writing.
+         The stream is positioned at the beginning of the file.
+
+``w+''  Open for reading and writing.  The file is created if it does not
+         exist, otherwise it is truncated.  The stream is positioned at
+         the beginning of the file.
+
+``a''   Open for writing.  The file is created if it does not exist.  The
+         stream is positioned at the end of the file.  Subsequent writes
+         to the file will always end up at the then current end of file,
+         irrespective of any intervening fseek(3) or similar.
+
+``a+''  Open for reading and writing.  The file is created if it does not
+         exist.  The stream is positioned at the end of the file.  Subse-
+         quent writes to the file will always end up at the then current
+         end of file, irrespective of any intervening fseek(3) or similar.
+    '''
+
+    #Count number of trips
+
+
+# Utf-8 añade compatibilidad con caracteres especiales
+    # y evita problemas con caracteres no ASCII (Hacentos, ñ, € importantes)
+    with open("trip_data.txt", "a+", encoding="utf-8") as file:
+        file.write(f"--- Iniciar viaje ---\n")
+        file.write(f"Tiempo en movimiento: {trip['avanzado']}s\n")
+        file.write(f"Tiempo en espera: {trip['espera']}s\n")
+        file.write(f"Costo total: {trip['tripCost'] / 100:.2f}€\n")
+    print("Datos del viaje guardados en 'trip_data.txt'.")
