@@ -1,0 +1,8 @@
+--- Iniciar viaje ---
+Tiempo en movimiento: 0.0s
+Tiempo en espera: 0.0s
+Costo total: 0.00€
+--- Iniciar viaje ---
+Tiempo en movimiento: 0.0s
+Tiempo en espera: 0.0s
+Costo total: 0.00€

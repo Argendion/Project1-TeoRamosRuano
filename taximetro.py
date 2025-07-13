@@ -2,7 +2,7 @@
 import unittest
 import random
 
-# Variables que contienen el estado del viaje y tarifas
+# Variables que contienen el estado del viaje y tarifas (en dictionaries)
 trip = {
     "espera": float(0),
     "avanzado": float(0),
@@ -56,6 +56,37 @@ def CheckAction(CAval, CAtrip, CAtarifs) -> bool:
 
     return True
 
+def save_trip(trip):
+    
+    # Guarda los datos del viaje en un archivo de texto, o crea uno nuevo si no existe
+    # Nombre, formato y contenido del archivo
+
+    '''
+``r''   Open text file for reading.  The stream is positioned at the
+         beginning of the file.
+
+``r+''  Open for reading and writing.  The stream is positioned at the
+         beginning of the file.
+
+``w''   Truncate file to zero length or create text file for writing.
+         The stream is positioned at the beginning of the file.
+
+``w+''  Open for reading and writing.  The file is created if it does not
+         exist, otherwise it is truncated.  The stream is positioned at
+         the beginning of the file.
+
+``a''   Open for writing.  The file is created if it does not exist.  The
+         stream is positioned at the end of the file.  Subsequent writes
+         to the file will always end up at the then current end of file,
+         irrespective of any intervening fseek(3) or similar.
+
+``a+''  Open for reading and writing.  The file is created if it does not
+         exist.  The stream is positioned at the end of the file.  Subse-
+         quent writes to the file will always end up at the then current
+         end of file, irrespective of any intervening fseek(3) or similar.
+    '''
+
+    #Count number of trips
 
 # Controla el flujo del viaje: avanzar, esperar o finalizar
 def CountCM(trip, tarifs) -> bool:
@@ -157,46 +188,7 @@ class TestCounterClass(unittest.TestCase):
             CalcularCosto('volar', 10, 2, 5)
 
 
-# Si ejecutamos el script directamente, preguntamos qué modo quiere el usuario
-if __name__ == '__main__':
-    modo = input("¿Quieres ejecutar tests (t) o iniciar la app (a)?: ").lower()
-    if modo == "t":
-        unittest.main(exit=False)
-    elif modo == "a":
-        StartRute(True, trip, tarifs, True)
-
 # Guardar en archivo
-def save_trip(trip):
-    
-    # Guarda los datos del viaje en un archivo de texto, o crea uno nuevo si no existe
-    # Nombre, formato y contenido del archivo
-
-    '''
-``r''   Open text file for reading.  The stream is positioned at the
-         beginning of the file.
-
-``r+''  Open for reading and writing.  The stream is positioned at the
-         beginning of the file.
-
-``w''   Truncate file to zero length or create text file for writing.
-         The stream is positioned at the beginning of the file.
-
-``w+''  Open for reading and writing.  The file is created if it does not
-         exist, otherwise it is truncated.  The stream is positioned at
-         the beginning of the file.
-
-``a''   Open for writing.  The file is created if it does not exist.  The
-         stream is positioned at the end of the file.  Subsequent writes
-         to the file will always end up at the then current end of file,
-         irrespective of any intervening fseek(3) or similar.
-
-``a+''  Open for reading and writing.  The file is created if it does not
-         exist.  The stream is positioned at the end of the file.  Subse-
-         quent writes to the file will always end up at the then current
-         end of file, irrespective of any intervening fseek(3) or similar.
-    '''
-
-    #Count number of trips
 
 
 # Utf-8 añade compatibilidad con caracteres especiales
@@ -207,3 +199,11 @@ def save_trip(trip):
         file.write(f"Tiempo en espera: {trip['espera']}s\n")
         file.write(f"Costo total: {trip['tripCost'] / 100:.2f}€\n")
     print("Datos del viaje guardados en 'trip_data.txt'.")
+
+# Si ejecutamos el script directamente, preguntamos qué modo quiere el usuario
+if __name__ == '__main__':
+    modo = input("¿Quieres ejecutar tests (t) o iniciar la app (a)?: ").lower()
+    if modo == "t":
+        unittest.main(exit=False)
+    elif modo == "a":
+        StartRute(True, trip, tarifs, True)
